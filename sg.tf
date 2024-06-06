@@ -1,0 +1,29 @@
+# Create Security Group
+resource "aws_security_group" "staging_sg" {
+  vpc_id = aws_vpc.staging.id
+
+  dynamic "ingress" {
+    for_each = [80, 22, 8080, 443, 9090, 9000]
+    iterator = port
+    content {
+      description = "TLS from VPC"
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${local.staging_env}-security-group"
+  }
+}
+
